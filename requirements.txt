@@ -1,0 +1,5 @@
+flask
+pika
+pysyncobj
+pyjwt
+matplotlib

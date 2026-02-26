@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  iam_service:
+    build: ./iam
+    command: python iam_service.py
+    ports:
+      - "7000:7000"
+    depends_on:
+      - rabbitmq
+
+  # HOSPITAL 1 STACK
+  hospital1:
+    build: ./hospital1
+    command: python patient_service.py
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./hospital1/db:/app/db
+    depends_on:
+      - rabbitmq
+
+  audit1:
+    build: ./hospital1
+    command: python audit_service.py
+    ports:
+      - "6001:6001"
+    depends_on:
+      - rabbitmq
+
+  ml_worker1:
+    build: ./hospital1
+    command: python ml_worker.py
+    ports:
+      - "7001:7001"
+    depends_on:
+      - hospital1
+
+  # HOSPITAL 2 STACK
+  hospital2:
+    build: ./hospital2
+    command: python patient_service.py
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./hospital2/db:/app/db
+    depends_on:
+      - rabbitmq
+
+  audit2:
+    build: ./hospital2
+    command: python audit_service.py
+    ports:
+      - "6002:6002"
+
+  ml_worker2:
+    build: ./hospital2
+    command: python ml_worker.py
+    ports:
+      - "7002:7002"
+
+  # HOSPITAL 3 STACK
+  hospital3:
+    build: ./hospital3
+    command: python patient_service.py
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./hospital3/db:/app/db
+    depends_on:
+      - rabbitmq
+
+  audit3:
+    build: ./hospital3
+    command: python audit_service.py
+    ports:
+      - "6003:6003"
+
+  ml_worker3:
+    build: ./hospital3
+    command: python ml_worker.py
+    ports:
+      - "7003:7003"
