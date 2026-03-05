@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import hashlib
 import jwt
@@ -19,6 +20,8 @@ log = logging.getLogger(__name__)
 # The passwords are stored as SHA-256 hashes for basic security. 
 
 def init_db():
+    if not os.path.exists("./db"):
+        os.makedirs("./db")
     conn = sqlite3.connect(DB_NAME)
     conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
